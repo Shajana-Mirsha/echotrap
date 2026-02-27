@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EchoTrap - AI Voice Clone Detector</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0a0a0a;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .logo {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #00ff88;
+      letter-spacing: 4px;
+      margin-bottom: 8px;
+    }
+
+    .tagline {
+      font-size: 1rem;
+      color: #888;
+      margin-bottom: 50px;
+      text-align: center;
+    }
+
+    .card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 560px;
+    }
+
+    .upload-area {
+      border: 2px dashed #333;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 24px;
+    }
+
+    .upload-area:hover {
+      border-color: #00ff88;
+    }
+
+    .upload-area p {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .upload-area span {
+      color: #00ff88;
+      font-weight: bold;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .filename {
+      color: #00ff88;
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      background: #00ff88;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 1px;
+    }
+
+    .btn:hover {
+      background: #00cc6a;
+    }
+
+    .btn:disabled {
+      background: #333;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    .result {
+      margin-top: 30px;
+      padding: 24px;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .result.real {
+      background: #001a0d;
+      border: 1px solid #00ff88;
+    }
+
+    .result.clone {
+      background: #1a0000;
+      border: 1px solid #ff3333;
+    }
+
+    .verdict {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .verdict.real {
+      color: #00ff88;
+    }
+
+    .verdict.clone {
+      color: #ff3333;
+    }
+
+    .score {
+      font-size: 0.9rem;
+      color: #888;
+      margin-bottom: 16px;
+    }
+
+    .reasons {
+      list-style: none;
+    }
+
+    .reasons li {
+      font-size: 0.85rem;
+      color: #aaa;
+      padding: 6px 0;
+      border-bottom: 1px solid #222;
+    }
+
+    .reasons li:before {
+      content: "⚠ ";
+      color: #ff3333;
+    }
+
+    .loading {
+      text-align: center;
+      color: #00ff88;
+      margin-top: 20px;
+      display: none;
+      font-size: 0.9rem;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 1px solid #222;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #00ff88;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #555;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="logo">ECHOTRAP</div>
+  <p class="tagline">Real-Time AI Voice Clone Detection. Protecting families from synthetic voice fraud.</p>
+
+  <div class="card">
+    <label for="audioFile">
+      <div class="upload-area" id="uploadArea">
+        <p>Drop your audio file here or <span>browse</span></p>
+        <p style="margin-top:8px; font-size:0.8rem;">Supports MP3, WAV, MP4</p>
+        <div class="filename" id="filename"></div>
+      </div>
+    </label>
+    <input type="file" id="audioFile" accept=".mp3,.wav,.mp4" onchange="handleFile(event)" />
+
+    <button class="btn" id="analyseBtn" onclick="analyseVoice()" disabled>
+      ANALYSE VOICE
+    </button>
+
+    <div class="loading" id="loading">
+      Analysing voice patterns&hellip; Please wait
+    </div>
+
+    <div class="result" id="result">
+      <div class="verdict" id="verdictText"></div>
+      <div class="score" id="scoreText"></div>
+      <ul class="reasons" id="reasonsList"></ul>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-number">3.4B</div>
+        <div class="stat-label">People at risk globally</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">4s</div>
+        <div class="stat-label">Detection time</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">3</div>
+        <div class="stat-label">AI detection layers</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let selectedFile = null;
+
+    function handleFile(event) {
+      selectedFile = event.target.files[0];
+      if (selectedFile) {
+        document.getElementById('filename').textContent = selectedFile.name;
+        document.getElementById('analyseBtn').disabled = false;
+      }
+    }
+
+    async function analyseVoice() {
+      if (!selectedFile) return;
+
+      var btn = document.getElementById('analyseBtn');
+      var loading = document.getElementById('loading');
+      var resultDiv = document.getElementById('result');
+
+      loading.style.display = 'block';
+      resultDiv.style.display = 'none';
+      btn.disabled = true;
+
+      var formData = new FormData();
+      formData.append('file', selectedFile);
+
+      try {
+        var response = await fetch('http://127.0.0.1:8000/analyse', {
+          method: 'POST',
+          body: formData
+        });
+
+        var data = await response.json();
+
+        loading.style.display = 'none';
+        btn.disabled = false;
+
+        var verdictText = document.getElementById('verdictText');
+        var scoreText = document.getElementById('scoreText');
+        var reasonsList = document.getElementById('reasonsList');
+
+        resultDiv.style.display = 'block';
+        reasonsList.innerHTML = '';
+
+        if (data.is_clone) {
+          resultDiv.className = 'result clone';
+          verdictText.className = 'verdict clone';
+          verdictText.textContent = '\u26a0 CLONED VOICE DETECTED';
+          scoreText.textContent = 'Threat Score: ' + data.confidence_score + '/100 \u2014 Family alert triggered';
+        } else {
+          resultDiv.className = 'result real';
+          verdictText.className = 'verdict real';
+          verdictText.textContent = '\u2714 REAL VOICE VERIFIED';
+          scoreText.textContent = 'Confidence: ' + (100 - data.confidence_score) + '% authentic \u2014 No threat detected';
+        }
+
+        if (data.reasons && data.reasons.length > 0) {
+          data.reasons.forEach(function (reason) {
+            var li = document.createElement('li');
+            li.textContent = reason;
+            reasonsList.appendChild(li);
+          });
+        }
+
+      } catch (error) {
+        loading.style.display = 'none';
+        btn.disabled = false;
+
+        resultDiv.className = 'result clone';
+        resultDiv.style.display = 'block';
+        document.getElementById('verdictText').className = 'verdict clone';
+        document.getElementById('verdictText').textContent = '\u26a0 Backend Not Running';
+        document.getElementById('scoreText').textContent = 'Run: cd backend && uvicorn main:app --reload';
+        document.getElementById('reasonsList').innerHTML = '';
+      }
+    }
+  </script>
+
+</body>
+
+</html>

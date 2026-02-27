@@ -1,7 +1,7 @@
 fastapi
-uvicorn
+uvicorn[standard]
 librosa
 numpy
-torch
 python-multipart
-twilio
+pydub
+requests
