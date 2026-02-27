@@ -1,0 +1,16 @@
+New-Item .gitignore
+```
+
+Then open `.gitignore` in VS Code and paste this:
+```
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.log
+temp_*
+real_voice.*
+cloned_voice.*
+test_voice.*
+alerts.log
+baseline.json
