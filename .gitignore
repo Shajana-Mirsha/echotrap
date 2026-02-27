@@ -7,7 +7,7 @@ __pycache__/
 .venv/
 venv/
 
-# Audio test files (keep out of repo — too large)
+# Audio test files
 backend/real_voice.*
 backend/cloned_voice.*
 backend/test_voice.*
@@ -16,7 +16,10 @@ backend/temp_*
 # Logs
 backend/alerts.log
 
-# ML outputs
+# ML — dataset and model binaries (too large for GitHub)
+ml/data/
+ml/model.pkl
+ml/scaler.pkl
 ml/baseline.json
 
 # OS
