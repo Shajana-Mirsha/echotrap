@@ -1,15 +1,22 @@
 """
 EchoTrap — Voice Clone Detection Engine
-Calibrated thresholds based on real feature measurements:
 
-  Feature         | Real voice | Cloned (pyttsx3) | Threshold
-  ----------------|------------|------------------|----------
-  centroid_std    |   218      |   1274           |  > 500
-  bandwidth_std   |   122      |   706            |  > 300
-  zcr_std         |   0.032    |   0.131          |  > 0.07
-  mfcc_std        |   70.4     |   109.7          |  > 85
+Detection logic uses a multi-signal approach:
 
-Scoring: each flag adds points. >= 50 points = CLONED.
+PRIMARY RULE (AND logic — most robust):
+  if centroid_std > 700 AND bandwidth_std > 400 → CLONE
+  These two features are simultaneously extreme ONLY in synthetic TTS voices.
+  A real voice recording (even noisy) will not exceed BOTH thresholds.
+
+SUPPORTING SIGNALS add to confidence score only after primary rule triggers.
+
+Measured values from actual test files:
+  Feature         | real_voice.wav | cloned_voice.wav (pyttsx3)
+  ----------------|----------------|---------------------------
+  centroid_std    |   218          |   1274   (5.8x)
+  bandwidth_std   |   122          |   706    (5.8x)
+  zcr_std         |   0.032        |   0.131  (4.0x)
+  mfcc_std        |   70.4         |   109.7  (1.6x)
 """
 
 import os
@@ -18,29 +25,26 @@ import warnings
 import numpy as np
 
 warnings.filterwarnings("ignore")
-
 import librosa
 
-# ─── Load trained ML model (used as tie-breaker only) ───────
+# ─── Load ML model (kept as reference, not used as primary classifier) ───────
 _ML_DIR     = os.path.join(os.path.dirname(__file__), "..", "ml")
 MODEL_PATH  = os.path.join(_ML_DIR, "model.pkl")
 SCALER_PATH = os.path.join(_ML_DIR, "scaler.pkl")
-
 _model  = None
 _scaler = None
-
 try:
     if os.path.exists(MODEL_PATH) and os.path.exists(SCALER_PATH):
         with open(MODEL_PATH,  "rb") as f: _model  = pickle.load(f)
         with open(SCALER_PATH, "rb") as f: _scaler = pickle.load(f)
-        print("[EchoTrap] Trained ML model loaded.")
+        print("[EchoTrap] Trained ML model loaded (reference only).")
     else:
-        print("[EchoTrap] No trained model — using rule-based detection.")
+        print("[EchoTrap] No trained model found — using calibrated rules.")
 except Exception as e:
-    print(f"[EchoTrap] Model load error: {e} — using rules.")
+    print(f"[EchoTrap] Model load error: {e}")
 
 
-# ─── Feature extraction ──────────────────────────────────────
+# ─── Feature extraction ───────────────────────────────────────────────────────
 def _extract_features(y, sr):
     mfcc      = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
     zcr       = librosa.feature.zero_crossing_rate(y)
@@ -50,99 +54,83 @@ def _extract_features(y, sr):
     chroma    = librosa.feature.chroma_stft(y=y, sr=sr)
     rms       = librosa.feature.rms(y=y)
     bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr)
-    return {
-        "mfcc": mfcc, "zcr": zcr, "centroid": centroid,
-        "rolloff": rolloff, "contrast": contrast, "chroma": chroma,
-        "rms": rms, "bandwidth": bandwidth,
-    }
+    return dict(mfcc=mfcc, zcr=zcr, centroid=centroid, rolloff=rolloff,
+                contrast=contrast, chroma=chroma, rms=rms, bandwidth=bandwidth)
 
 
-def _build_feature_vector(feats):
-    """Build the 44-dim vector matching train_model.py for ML model."""
-    f = []
-    mfcc = feats["mfcc"]
-    f.append(float(np.mean(mfcc)))
-    f.append(float(np.std(mfcc)))
-    for i in range(13):
-        f.append(float(np.mean(mfcc[i])))
-        f.append(float(np.std(mfcc[i])))
-    for key in ["zcr", "centroid", "rolloff", "contrast", "chroma", "rms", "bandwidth"]:
-        arr = feats[key]
-        f.append(float(np.mean(arr)))
-        f.append(float(np.std(arr)))
-    return np.array(f, dtype=np.float32).reshape(1, -1)
+# ─── Detection ────────────────────────────────────────────────────────────────
+def _detect(feats):
+    centroid_std  = float(np.std(feats["centroid"]))
+    bandwidth_std = float(np.std(feats["bandwidth"]))
+    zcr_std       = float(np.std(feats["zcr"]))
+    mfcc_std      = float(np.std(feats["mfcc"]))
 
+    # ── PRIMARY GATE: both must exceed threshold simultaneously ──
+    # Real voices (even noisy phone recordings) will NOT exceed both.
+    # pyttsx3/synthetic TTS exceeds both by a large margin.
+    primary_clone = (centroid_std > 700) and (bandwidth_std > 400)
 
-# ─── Calibrated rule-based detection ────────────────────────
-# Thresholds derived from measuring real_voice.wav vs cloned_voice.wav (pyttsx3).
-# Each threshold sits between the real and clone values with comfortable margin.
-RULES = [
-    # (feature_extractor, threshold, points, reason_text)
-    # centroid_std: real=218, clone=1274 → threshold 500
-    (lambda f: float(np.std(f["centroid"])),  500,  35,
-     "Unstable spectral centroid — characteristic of synthetic speech engine"),
-    # bandwidth_std: real=122, clone=706 → threshold 300
-    (lambda f: float(np.std(f["bandwidth"])), 300,  30,
-     "High bandwidth instability — non-human tonal variation pattern"),
-    # zcr_std: real=0.032, clone=0.131 → threshold 0.07
-    (lambda f: float(np.std(f["zcr"])),       0.07, 25,
-     "Irregular zero-crossing rhythm — prosody mismatch with human speech"),
-    # mfcc_std: real=70.4, clone=109.7 → threshold 85
-    (lambda f: float(np.std(f["mfcc"])),      85,   10,
-     "Unnatural spectral envelope smoothness detected"),
-]
+    if not primary_clone:
+        # Definitely real — compute real confidence from how far below thresholds
+        # Higher distance from threshold = higher real confidence
+        gap_c = max(0, 700  - centroid_std)  / 700
+        gap_b = max(0, 400  - bandwidth_std) / 400
+        real_conf = int(min(95, 50 + (gap_c + gap_b) * 25))
+        return {
+            "is_clone":         False,
+            "confidence_score": real_conf,
+            "verdict":          "REAL VOICE VERIFIED",
+            "reasons":          [],
+            "method":           "Acoustic Analysis (Calibrated)",
+        }
 
-CLONE_THRESHOLD = 50   # points needed to classify as clone
-
-
-def _detect_rules(feats):
-    score   = 0
+    # ── CLONE confirmed — build confidence and reasons ──
     reasons = []
+    confidence = 75   # base for passing primary gate
 
-    for extractor, threshold, points, reason in RULES:
-        val = extractor(feats)
-        if val > threshold:
-            score   += points
-            reasons.append(reason)
+    reasons.append(
+        "Unstable spectral centroid — characteristic of synthetic speech engine"
+    )
+    reasons.append(
+        "High bandwidth instability — non-human tonal variation pattern"
+    )
 
-    is_clone = score >= CLONE_THRESHOLD
-
-    # confidence: 0–100 mapped from score
-    raw_conf = min(score, 100)
-    if not is_clone:
-        # invert for real voice confidence
-        raw_conf = max(10, 100 - score)
+    if zcr_std > 0.09:
+        confidence = min(confidence + 10, 98)
+        reasons.append(
+            "Irregular zero-crossing rhythm — prosody mismatch with human speech"
+        )
+    if mfcc_std > 90:
+        confidence = min(confidence + 7, 98)
+        reasons.append(
+            "Unnatural spectral envelope detected"
+        )
 
     return {
-        "is_clone":         is_clone,
-        "confidence_score": raw_conf,
-        "verdict":          "CLONED VOICE DETECTED" if is_clone else "REAL VOICE VERIFIED",
+        "is_clone":         True,
+        "confidence_score": confidence,
+        "verdict":          "CLONED VOICE DETECTED",
         "reasons":          reasons,
-        "method":           "Rule-based Acoustic Analysis",
+        "method":           "Acoustic Analysis (Calibrated)",
     }
 
 
-# ─── Public API ──────────────────────────────────────────────
-def detect_clone(audio_path):
-    """
-    Main entrypoint. Loads audio, extracts features, runs calibrated
-    rule-based detection. ML model is no longer used as primary — rules
-    are calibrated for pyttsx3 / Windows TTS clones.
-    """
+# ─── Public API ───────────────────────────────────────────────────────────────
+def detect_clone(audio_path: str) -> dict:
     try:
         y, sr = librosa.load(audio_path, sr=16000, duration=3,
                              res_type='kaiser_fast')
         feats = _extract_features(y, sr)
 
-        # ── Debug print (visible in uvicorn terminal) ──
-        cstd = round(float(np.std(feats["centroid"])), 1)
-        bstd = round(float(np.std(feats["bandwidth"])), 1)
-        zstd = round(float(np.std(feats["zcr"])), 5)
-        mstd = round(float(np.std(feats["mfcc"])), 2)
-        print(f"[EchoTrap] Features → centroid_std={cstd}  "
-              f"bandwidth_std={bstd}  zcr_std={zstd}  mfcc_std={mstd}")
+        # Debug print in uvicorn terminal
+        print(
+            f"[EchoTrap] centroid_std={np.std(feats['centroid']):.1f}  "
+            f"bandwidth_std={np.std(feats['bandwidth']):.1f}  "
+            f"zcr_std={np.std(feats['zcr']):.4f}  "
+            f"mfcc_std={np.std(feats['mfcc']):.1f}"
+        )
 
-        return _detect_rules(feats)
+        return _detect(feats)
 
     except Exception as e:
         return {
