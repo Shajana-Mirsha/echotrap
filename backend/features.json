@@ -1,0 +1,32 @@
+{
+  "real": {
+    "mfcc_mean": -12.0093,
+    "mfcc_std": 70.3773,
+    "zcr_mean": 0.093064,
+    "zcr_std": 0.032386,
+    "centroid_mean": 1424.65,
+    "centroid_std": 218.03,
+    "rolloff_mean": 2895.03,
+    "contrast_mean": 20.1717,
+    "contrast_std": 8.4875,
+    "chroma_mean": 0.3904,
+    "rms_mean": 0.046171,
+    "bandwidth_mean": 1399.34,
+    "bandwidth_std": 121.98
+  },
+  "clone": {
+    "mfcc_mean": -18.7817,
+    "mfcc_std": 109.7017,
+    "zcr_mean": 0.154962,
+    "zcr_std": 0.130665,
+    "centroid_mean": 1520.83,
+    "centroid_std": 1274.01,
+    "rolloff_mean": 2689.49,
+    "contrast_mean": 18.5577,
+    "contrast_std": 7.9568,
+    "chroma_mean": 0.3439,
+    "rms_mean": 0.075073,
+    "bandwidth_mean": 1156.47,
+    "bandwidth_std": 706.48
+  }
+}
