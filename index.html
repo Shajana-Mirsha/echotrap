@@ -4,313 +4,809 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EchoTrap - AI Voice Clone Detector</title>
+  <title>EchoTrap — AI Voice Clone Detector</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap"
+    rel="stylesheet" />
   <style>
-    * {
+    *,
+    *::before,
+    *::after {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
+    :root {
+      --green: #00ff88;
+      --green2: #00c96e;
+      --red: #ff3c6e;
+      --red2: #c0002a;
+      --bg: #050810;
+      --surface: rgba(255, 255, 255, 0.04);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #e8eaf0;
+      --muted: #556070;
+    }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #0a0a0a;
-      color: #ffffff;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 24px;
+      overflow-x: hidden;
+    }
+
+    /* ── Animated background blobs ── */
+    .bg-blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.12;
+      pointer-events: none;
+      animation: blobFloat 12s ease-in-out infinite;
+    }
+
+    .bg-blob-1 {
+      width: 500px;
+      height: 500px;
+      background: var(--green);
+      top: -150px;
+      left: -150px;
+      animation-delay: 0s;
+    }
+
+    .bg-blob-2 {
+      width: 400px;
+      height: 400px;
+      background: #0077ff;
+      bottom: -100px;
+      right: -100px;
+      animation-delay: -4s;
+    }
+
+    .bg-blob-3 {
+      width: 300px;
+      height: 300px;
+      background: var(--red);
+      top: 40%;
+      left: 60%;
+      animation-delay: -8s;
+      opacity: 0.06;
+    }
+
+    @keyframes blobFloat {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      33% {
+        transform: translate(30px, -30px) scale(1.05);
+      }
+
+      66% {
+        transform: translate(-20px, 20px) scale(0.97);
+      }
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .shield {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 18px;
+      animation: shieldPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes shieldPulse {
+
+      0%,
+      100% {
+        filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.6));
+      }
+
+      50% {
+        filter: drop-shadow(0 0 24px rgba(0, 255, 136, 0.9));
+      }
     }
 
     .logo {
-      font-size: 3rem;
+      font-size: clamp(2.4rem, 6vw, 3.6rem);
       font-weight: 900;
-      color: #00ff88;
-      letter-spacing: 4px;
-      margin-bottom: 8px;
+      letter-spacing: 6px;
+      background: linear-gradient(135deg, var(--green), #00cfff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 10px;
     }
 
     .tagline {
-      font-size: 1rem;
-      color: #888;
-      margin-bottom: 50px;
-      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: var(--muted);
+      letter-spacing: 0.5px;
     }
 
+    /* ── Card ── */
     .card {
-      background: #111;
-      border: 1px solid #222;
-      border-radius: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
       padding: 40px;
       width: 100%;
-      max-width: 560px;
+      max-width: 580px;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    /* ── Upload zone ── */
+    .upload-label {
+      display: block;
+      cursor: pointer;
     }
 
     .upload-area {
-      border: 2px dashed #333;
-      border-radius: 12px;
-      padding: 40px;
+      position: relative;
+      border: 2px dashed rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 36px 24px;
       text-align: center;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin-bottom: 24px;
+      transition: border-color 0.3s, background 0.3s;
+      margin-bottom: 20px;
+      overflow: hidden;
     }
 
-    .upload-area:hover {
-      border-color: #00ff88;
+    .upload-area::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(0, 255, 136, 0.04) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s;
     }
 
-    .upload-area p {
-      color: #666;
+    .upload-area:hover,
+    .upload-area.active {
+      border-color: var(--green);
+    }
+
+    .upload-area:hover::before,
+    .upload-area.active::before {
+      opacity: 1;
+    }
+
+    .upload-icon {
+      font-size: 2.4rem;
+      margin-bottom: 10px;
+    }
+
+    .upload-text {
+      color: #556070;
       font-size: 0.95rem;
+      line-height: 1.6;
     }
 
-    .upload-area span {
-      color: #00ff88;
-      font-weight: bold;
+    .upload-text span {
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .filename {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--green);
+      font-weight: 500;
+      min-height: 1.2em;
     }
 
     input[type="file"] {
       display: none;
     }
 
-    .filename {
-      color: #00ff88;
-      font-size: 0.9rem;
-      margin-top: 10px;
-    }
-
+    /* ── Button ── */
     .btn {
       width: 100%;
-      padding: 16px;
-      background: #00ff88;
-      color: #000;
+      padding: 17px;
       border: none;
-      border-radius: 10px;
-      font-size: 1rem;
+      border-radius: 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
       font-weight: 700;
+      letter-spacing: 2px;
       cursor: pointer;
-      transition: all 0.3s;
-      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+      transition: opacity 0.3s, transform 0.15s;
+      background: linear-gradient(135deg, var(--green) 0%, #00cfff 100%);
+      color: #050810;
     }
 
-    .btn:hover {
-      background: #00cc6a;
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .btn:hover:not(:disabled)::after {
+      opacity: 1;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(0);
     }
 
     .btn:disabled {
-      background: #333;
-      color: #666;
+      background: linear-gradient(135deg, #1a2430, #1a2430);
+      color: var(--muted);
       cursor: not-allowed;
     }
 
-    .result {
-      margin-top: 30px;
-      padding: 24px;
-      border-radius: 12px;
+    /* ── Waveform loader ── */
+    .loading {
       display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      margin-top: 28px;
+      padding: 24px;
+      border-radius: 14px;
+      background: rgba(0, 255, 136, 0.04);
+      border: 1px solid rgba(0, 255, 136, 0.1);
+    }
+
+    .loading.visible {
+      display: flex;
+    }
+
+    .wave-bars {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      height: 40px;
+    }
+
+    .wave-bar {
+      width: 5px;
+      border-radius: 3px;
+      background: var(--green);
+      animation: wavePulse 1.1s ease-in-out infinite;
+    }
+
+    .wave-bar:nth-child(1) {
+      animation-delay: 0.0s;
+    }
+
+    .wave-bar:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    .wave-bar:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+
+    .wave-bar:nth-child(4) {
+      animation-delay: 0.3s;
+    }
+
+    .wave-bar:nth-child(5) {
+      animation-delay: 0.4s;
+    }
+
+    .wave-bar:nth-child(6) {
+      animation-delay: 0.3s;
+    }
+
+    .wave-bar:nth-child(7) {
+      animation-delay: 0.2s;
+    }
+
+    .wave-bar:nth-child(8) {
+      animation-delay: 0.1s;
+    }
+
+    .wave-bar:nth-child(9) {
+      animation-delay: 0.0s;
+    }
+
+    @keyframes wavePulse {
+
+      0%,
+      100% {
+        height: 6px;
+        opacity: 0.4;
+      }
+
+      50% {
+        height: 36px;
+        opacity: 1;
+      }
+    }
+
+    .loading-text {
+      font-size: 0.88rem;
+      color: var(--green);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Result ── */
+    .result {
+      display: none;
+      margin-top: 24px;
+      border-radius: 18px;
+      padding: 28px;
+      animation: resultReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .result.visible {
+      display: block;
     }
 
     .result.real {
-      background: #001a0d;
-      border: 1px solid #00ff88;
+      background: rgba(0, 255, 136, 0.06);
+      border: 1px solid rgba(0, 255, 136, 0.25);
     }
 
     .result.clone {
-      background: #1a0000;
-      border: 1px solid #ff3333;
+      background: rgba(255, 60, 110, 0.06);
+      border: 1px solid rgba(255, 60, 110, 0.25);
+    }
+
+    @keyframes resultReveal {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.97);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .result-top {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    /* Score ring */
+    .score-ring {
+      flex-shrink: 0;
+      position: relative;
+      width: 76px;
+      height: 76px;
+    }
+
+    .score-ring svg {
+      width: 76px;
+      height: 76px;
+      transform: rotate(-90deg);
+    }
+
+    .ring-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.06);
+      stroke-width: 7;
+    }
+
+    .ring-fill {
+      fill: none;
+      stroke-width: 7;
+      stroke-linecap: round;
+      stroke-dasharray: 201;
+      stroke-dashoffset: 201;
+      transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .ring-fill.real {
+      stroke: var(--green);
+    }
+
+    .ring-fill.clone {
+      stroke: var(--red);
+    }
+
+    .score-num {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .score-num.real {
+      color: var(--green);
+    }
+
+    .score-num.clone {
+      color: var(--red);
+    }
+
+    .verdict-block {
+      flex: 1;
     }
 
     .verdict {
-      font-size: 1.4rem;
-      font-weight: 800;
-      margin-bottom: 12px;
+      font-size: 1.25rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
     }
 
     .verdict.real {
-      color: #00ff88;
+      color: var(--green);
     }
 
     .verdict.clone {
-      color: #ff3333;
+      color: var(--red);
     }
 
-    .score {
-      font-size: 0.9rem;
-      color: #888;
-      margin-bottom: 16px;
+    .score-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.07);
+      margin: 16px 0;
     }
 
     .reasons {
       list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
     .reasons li {
-      font-size: 0.85rem;
-      color: #aaa;
-      padding: 6px 0;
-      border-bottom: 1px solid #222;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.83rem;
+      color: #8a99b0;
+      line-height: 1.5;
     }
 
-    .reasons li:before {
-      content: "⚠ ";
-      color: #ff3333;
+    .reasons li .tag {
+      flex-shrink: 0;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 2px 7px;
+      border-radius: 20px;
+      margin-top: 1px;
     }
 
-    .loading {
-      text-align: center;
-      color: #00ff88;
-      margin-top: 20px;
-      display: none;
-      font-size: 0.9rem;
+    .result.clone .tag {
+      background: rgba(255, 60, 110, 0.15);
+      color: var(--red);
     }
 
+    .result.real .tag {
+      background: rgba(0, 255, 136, 0.12);
+      color: var(--green);
+    }
+
+    .method-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 14px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+
+    /* ── Stats ── */
     .stats {
       display: flex;
       justify-content: space-around;
-      margin-top: 40px;
-      padding-top: 30px;
-      border-top: 1px solid #222;
+      margin-top: 32px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
     }
 
     .stat {
       text-align: center;
     }
 
+    .stat-icon {
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+    }
+
     .stat-number {
-      font-size: 1.8rem;
+      font-size: 1.7rem;
       font-weight: 900;
-      color: #00ff88;
+      background: linear-gradient(135deg, var(--green), #00cfff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .stat-label {
-      font-size: 0.75rem;
-      color: #555;
-      margin-top: 4px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 3px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Drag over ── */
+    .upload-area.drag-over {
+      border-color: var(--green);
+      background: rgba(0, 255, 136, 0.04);
     }
   </style>
 </head>
 
 <body>
 
-  <div class="logo">ECHOTRAP</div>
-  <p class="tagline">Real-Time AI Voice Clone Detection. Protecting families from synthetic voice fraud.</p>
+  <!-- Background blobs -->
+  <div class="bg-blob bg-blob-1"></div>
+  <div class="bg-blob bg-blob-2"></div>
+  <div class="bg-blob bg-blob-3"></div>
 
+  <!-- Header -->
+  <header class="header">
+    <svg class="shield" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M32 4L8 14v18c0 13.3 10.3 25.7 24 29 13.7-3.3 24-15.7 24-29V14L32 4z" fill="rgba(0,255,136,0.12)"
+        stroke="#00ff88" stroke-width="2" />
+      <path d="M22 31l7 7 13-13" stroke="#00ff88" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <div class="logo">ECHOTRAP</div>
+    <p class="tagline">Real-Time AI Voice Clone Detection &nbsp;·&nbsp; Protecting families from synthetic voice fraud
+    </p>
+  </header>
+
+  <!-- Main card -->
   <div class="card">
-    <label for="audioFile">
+
+    <!-- Upload -->
+    <label class="upload-label" for="audioFile">
       <div class="upload-area" id="uploadArea">
-        <p>Drop your audio file here or <span>browse</span></p>
-        <p style="margin-top:8px; font-size:0.8rem;">Supports MP3, WAV, MP4</p>
+        <div class="upload-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#556070" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="2" width="6" height="12" rx="3" />
+            <path d="M5 10a7 7 0 0 0 14 0" />
+            <line x1="12" y1="19" x2="12" y2="22" />
+            <line x1="9" y1="22" x2="15" y2="22" />
+          </svg>
+        </div>
+        <p class="upload-text">
+          Drop your voice file here or <span>browse</span><br />
+          <small style="font-size:0.78rem;">MP3 · WAV · MP4 · M4A · any format</small>
+        </p>
         <div class="filename" id="filename"></div>
       </div>
     </label>
-    <input type="file" id="audioFile" accept=".mp3,.wav,.mp4" onchange="handleFile(event)" />
+    <input type="file" id="audioFile" accept="audio/*,video/*,.mp4,.mp3,.wav,.m4a,.ogg,.webm,.mov,.avi"
+      onchange="handleFile(event)" />
 
     <button class="btn" id="analyseBtn" onclick="analyseVoice()" disabled>
       ANALYSE VOICE
     </button>
 
+    <!-- Loading waveform -->
     <div class="loading" id="loading">
-      Analysing voice patterns&hellip; Please wait
+      <div class="wave-bars">
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+      </div>
+      <span class="loading-text">Analysing voice patterns &nbsp;—&nbsp; please wait</span>
     </div>
 
+    <!-- Result -->
     <div class="result" id="result">
-      <div class="verdict" id="verdictText"></div>
-      <div class="score" id="scoreText"></div>
+      <div class="result-top">
+        <div class="score-ring">
+          <svg viewBox="0 0 76 76">
+            <circle class="ring-bg" cx="38" cy="38" r="32" />
+            <circle class="ring-fill" id="ringFill" cx="38" cy="38" r="32" />
+          </svg>
+          <div class="score-num" id="scoreNum"></div>
+        </div>
+        <div class="verdict-block">
+          <div class="verdict" id="verdictText"></div>
+          <div class="score-label" id="scoreLabel"></div>
+        </div>
+      </div>
+      <div class="divider"></div>
       <ul class="reasons" id="reasonsList"></ul>
+      <div class="method-badge" id="methodBadge">
+        <span>⚙</span> <span id="methodText"></span>
+      </div>
     </div>
 
+    <!-- Stats -->
     <div class="stats">
       <div class="stat">
+        <div class="stat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20" />
+          </svg>
+        </div>
         <div class="stat-number">3.4B</div>
         <div class="stat-label">People at risk globally</div>
       </div>
       <div class="stat">
+        <div class="stat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
+        </div>
         <div class="stat-number">4s</div>
         <div class="stat-label">Detection time</div>
       </div>
       <div class="stat">
+        <div class="stat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a9 9 0 0 1 9 9c0 3-1.5 5.5-4 7l-1 4H8l-1-4C4.5 16.5 3 14 3 11a9 9 0 0 1 9-9z" />
+            <line x1="9" y1="21" x2="15" y2="21" />
+          </svg>
+        </div>
         <div class="stat-number">3</div>
         <div class="stat-label">AI detection layers</div>
       </div>
     </div>
-  </div>
+
+  </div><!-- /card -->
 
   <script>
     let selectedFile = null;
 
-    function handleFile(event) {
-      selectedFile = event.target.files[0];
-      if (selectedFile) {
-        document.getElementById('filename').textContent = selectedFile.name;
-        document.getElementById('analyseBtn').disabled = false;
-      }
+    // ── Drag & drop ──
+    const uploadArea = document.getElementById('uploadArea');
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+    uploadArea.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadArea.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) setFile(file);
+    });
+
+    function setFile(file) {
+      selectedFile = file;
+      document.getElementById('filename').textContent = '📎 ' + file.name;
+      document.getElementById('analyseBtn').disabled = false;
+      uploadArea.classList.add('active');
     }
 
+    function handleFile(event) {
+      const file = event.target.files[0];
+      if (file) setFile(file);
+    }
+
+    // ── Ring animation ──
+    function animateRing(score, type) {
+      const ring = document.getElementById('ringFill');
+      ring.className = 'ring-fill ' + type;
+      // circumference = 2π×32 ≈ 201
+      const offset = 201 - (201 * score / 100);
+      setTimeout(() => { ring.style.strokeDashoffset = offset; }, 80);
+    }
+
+    // ── Main analyse ──
     async function analyseVoice() {
       if (!selectedFile) return;
 
-      var btn = document.getElementById('analyseBtn');
-      var loading = document.getElementById('loading');
-      var resultDiv = document.getElementById('result');
+      const btn = document.getElementById('analyseBtn');
+      const loading = document.getElementById('loading');
+      const resultDiv = document.getElementById('result');
 
-      loading.style.display = 'block';
+      loading.classList.add('visible');
+      resultDiv.classList.remove('visible');
       resultDiv.style.display = 'none';
       btn.disabled = true;
 
-      var formData = new FormData();
+      const formData = new FormData();
       formData.append('file', selectedFile);
 
       try {
-        var response = await fetch('http://127.0.0.1:8000/analyse', {
+        const response = await fetch('http://127.0.0.1:8000/analyse', {
           method: 'POST',
           body: formData
         });
+        const data = await response.json();
 
-        var data = await response.json();
-
-        loading.style.display = 'none';
+        loading.classList.remove('visible');
         btn.disabled = false;
 
-        var verdictText = document.getElementById('verdictText');
-        var scoreText = document.getElementById('scoreText');
-        var reasonsList = document.getElementById('reasonsList');
+        const isClone = data.is_clone;
+        const score = data.confidence_score || 0;
+        const reasons = data.reasons || [];
+        const method = data.method || '';
+        const type = isClone ? 'clone' : 'real';
 
+        resultDiv.className = 'result ' + type;
         resultDiv.style.display = 'block';
-        reasonsList.innerHTML = '';
+        // trigger animation frame before adding .visible
+        requestAnimationFrame(() => resultDiv.classList.add('visible'));
 
-        if (data.is_clone) {
-          resultDiv.className = 'result clone';
-          verdictText.className = 'verdict clone';
-          verdictText.textContent = '\u26a0 CLONED VOICE DETECTED';
-          scoreText.textContent = 'Threat Score: ' + data.confidence_score + '/100 \u2014 Family alert triggered';
+        document.getElementById('scoreNum').className = 'score-num ' + type;
+        document.getElementById('scoreNum').textContent = score + '%';
+        document.getElementById('verdictText').className = 'verdict ' + type;
+
+        if (isClone) {
+          document.getElementById('verdictText').textContent = '\u26a0\ufe0f  CLONED VOICE DETECTED';
+          document.getElementById('scoreLabel').textContent = 'Threat confidence \u2014 family alert triggered';
         } else {
-          resultDiv.className = 'result real';
-          verdictText.className = 'verdict real';
-          verdictText.textContent = '\u2714 REAL VOICE VERIFIED';
-          scoreText.textContent = 'Confidence: ' + (100 - data.confidence_score) + '% authentic \u2014 No threat detected';
+          document.getElementById('verdictText').textContent = '\u2714\ufe0f  REAL VOICE VERIFIED';
+          document.getElementById('scoreLabel').textContent = 'Authenticity confidence \u2014 no threat detected';
         }
 
-        if (data.reasons && data.reasons.length > 0) {
-          data.reasons.forEach(function (reason) {
-            var li = document.createElement('li');
-            li.textContent = reason;
-            reasonsList.appendChild(li);
-          });
-        }
+        animateRing(score, type);
 
-      } catch (error) {
-        loading.style.display = 'none';
+        const list = document.getElementById('reasonsList');
+        list.innerHTML = '';
+        reasons.forEach(r => {
+          const li = document.createElement('li');
+          const tag = document.createElement('span');
+          tag.className = 'tag';
+          tag.textContent = isClone ? 'FLAG' : 'OK';
+          li.appendChild(tag);
+          li.appendChild(document.createTextNode(r));
+          list.appendChild(li);
+        });
+
+        document.getElementById('methodText').textContent = method;
+
+      } catch (err) {
+        loading.classList.remove('visible');
         btn.disabled = false;
 
         resultDiv.className = 'result clone';
         resultDiv.style.display = 'block';
+        requestAnimationFrame(() => resultDiv.classList.add('visible'));
+
+        document.getElementById('scoreNum').className = 'score-num clone';
+        document.getElementById('scoreNum').textContent = '!';
         document.getElementById('verdictText').className = 'verdict clone';
-        document.getElementById('verdictText').textContent = '\u26a0 Backend Not Running';
-        document.getElementById('scoreText').textContent = 'Run: cd backend && uvicorn main:app --reload';
+        document.getElementById('verdictText').textContent = '\u26a0  Backend Not Running';
+        document.getElementById('scoreLabel').textContent = 'Start server: cd backend \u2192 uvicorn main:app --reload';
         document.getElementById('reasonsList').innerHTML = '';
+        animateRing(100, 'clone');
       }
     }
   </script>
