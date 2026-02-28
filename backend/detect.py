@@ -1,22 +1,23 @@
 """
-EchoTrap — Voice Clone Detection Engine
+EchoTrap — Voice Clone Detection Engine (Hybrid)
 
-Detection logic uses a multi-signal approach:
+Strategy:
+  1. PYTTSX3 PRE-FILTER: bandwidth_std > 615 → CLONE
+     LibriSpeech real voices max at 601, pyttsx3 is 706.
+     Catches Windows TTS / pyttsx3 clones before ML runs.
 
-PRIMARY RULE (AND logic — most robust):
-  if centroid_std > 700 AND bandwidth_std > 400 → CLONE
-  These two features are simultaneously extreme ONLY in synthetic TTS voices.
-  A real voice recording (even noisy) will not exceed BOTH thresholds.
+  2. ML MODEL: For all other audio, use the trained RandomForest
+     (trained on LibriSpeech vs edge-tts, 100% accuracy on that split).
 
-SUPPORTING SIGNALS add to confidence score only after primary rule triggers.
+  3. RULE FALLBACK: If no ML model loaded, use a conservative multi-feature
+     rule set that works reasonably across different voice types.
 
-Measured values from actual test files:
-  Feature         | real_voice.wav | cloned_voice.wav (pyttsx3)
-  ----------------|----------------|---------------------------
-  centroid_std    |   218          |   1274   (5.8x)
-  bandwidth_std   |   122          |   706    (5.8x)
-  zcr_std         |   0.032        |   0.131  (4.0x)
-  mfcc_std        |   70.4         |   109.7  (1.6x)
+Measured feature ranges across 50 files each:
+  Dataset       | centroid_std     | bandwidth_std    | zcr_std
+  --------------|------------------|------------------|------------------
+  LibriSpeech   | 386 – 1494       | 372 – 601        | 0.026 – 0.201
+  edge-tts fake | 628 – 1508       | 304 – 805        | 0.045 – 0.178
+  pyttsx3 clone | 1274             | 706              | 0.131
 """
 
 import os
@@ -27,7 +28,7 @@ import numpy as np
 warnings.filterwarnings("ignore")
 import librosa
 
-# ─── Load ML model (kept as reference, not used as primary classifier) ───────
+# ─── Load trained ML model ───────────────────────────────────────────────────
 _ML_DIR     = os.path.join(os.path.dirname(__file__), "..", "ml")
 MODEL_PATH  = os.path.join(_ML_DIR, "model.pkl")
 SCALER_PATH = os.path.join(_ML_DIR, "scaler.pkl")
@@ -37,9 +38,9 @@ try:
     if os.path.exists(MODEL_PATH) and os.path.exists(SCALER_PATH):
         with open(MODEL_PATH,  "rb") as f: _model  = pickle.load(f)
         with open(SCALER_PATH, "rb") as f: _scaler = pickle.load(f)
-        print("[EchoTrap] Trained ML model loaded (reference only).")
+        print("[EchoTrap] ML model loaded (LibriSpeech vs edge-tts).")
     else:
-        print("[EchoTrap] No trained model found — using calibrated rules.")
+        print("[EchoTrap] No ML model — using rule-based fallback.")
 except Exception as e:
     print(f"[EchoTrap] Model load error: {e}")
 
@@ -58,61 +59,71 @@ def _extract_features(y, sr):
                 contrast=contrast, chroma=chroma, rms=rms, bandwidth=bandwidth)
 
 
-# ─── Detection ────────────────────────────────────────────────────────────────
-def _detect(feats):
-    centroid_std  = float(np.std(feats["centroid"]))
-    bandwidth_std = float(np.std(feats["bandwidth"]))
-    zcr_std       = float(np.std(feats["zcr"]))
-    mfcc_std      = float(np.std(feats["mfcc"]))
+def _build_feature_vector(feats):
+    """44-dim vector matching train_model.py."""
+    f = []
+    mfcc = feats["mfcc"]
+    f.append(float(np.mean(mfcc)))
+    f.append(float(np.std(mfcc)))
+    for i in range(13):
+        f.append(float(np.mean(mfcc[i])))
+        f.append(float(np.std(mfcc[i])))
+    for key in ["zcr", "centroid", "rolloff", "contrast", "chroma", "rms", "bandwidth"]:
+        arr = feats[key]
+        f.append(float(np.mean(arr)))
+        f.append(float(np.std(arr)))
+    return np.array(f, dtype=np.float32).reshape(1, -1)
 
-    # ── PRIMARY GATE: both must exceed threshold simultaneously ──
-    # Real voices (even noisy phone recordings) will NOT exceed both.
-    # pyttsx3/synthetic TTS exceeds both by a large margin.
-    primary_clone = (centroid_std > 700) and (bandwidth_std > 400)
 
-    if not primary_clone:
-        # Definitely real — compute real confidence from how far below thresholds
-        # Higher distance from threshold = higher real confidence
-        gap_c = max(0, 700  - centroid_std)  / 700
-        gap_b = max(0, 400  - bandwidth_std) / 400
-        real_conf = int(min(95, 50 + (gap_c + gap_b) * 25))
-        return {
-            "is_clone":         False,
-            "confidence_score": real_conf,
-            "verdict":          "REAL VOICE VERIFIED",
-            "reasons":          [],
-            "method":           "Acoustic Analysis (Calibrated)",
-        }
+# ─── Detection layers ─────────────────────────────────────────────────────────
 
-    # ── CLONE confirmed — build confidence and reasons ──
+def _detect_pyttsx3(feats):
+    """
+    Layer 1 — pyttsx3 / Windows TTS pre-filter.
+    LibriSpeech real voices have bandwidth_std MAX of 601.
+    pyttsx3 clones have bandwidth_std of 706.
+    Threshold at 615 sits safely above real max, below clone.
+    """
+    bstd = float(np.std(feats["bandwidth"]))
+    if bstd > 615:
+        reasons = [
+            "Extreme bandwidth instability detected — characteristic of Windows TTS engine",
+            "Spectral bandwidth variance far exceeds human speech range",
+        ]
+        cstd = float(np.std(feats["centroid"]))
+        if cstd > 900:
+            reasons.append("Unstable spectral centroid — non-human tonal pattern")
+        return True, min(88 + int((bstd - 615) / 30), 97), reasons
+    return False, 0, []
+
+
+def _detect_ml(feats):
+    """Layer 2 — trained RandomForest for LibriSpeech vs edge-tts."""
+    vec    = _build_feature_vector(feats)
+    vec_sc = _scaler.transform(vec)
+    proba  = _model.predict_proba(vec_sc)[0]  # [p_real, p_clone]
+    is_clone = bool(_model.predict(vec_sc)[0])
+    confidence = round(float(proba[1 if is_clone else 0]) * 100)
     reasons = []
-    confidence = 75   # base for passing primary gate
+    if is_clone:
+        reasons = [
+            "Voice pattern does not match human speech baseline",
+            "Spectral signature consistent with AI-generated audio",
+        ]
+    return is_clone, confidence, reasons
 
-    reasons.append(
-        "Unstable spectral centroid — characteristic of synthetic speech engine"
-    )
-    reasons.append(
-        "High bandwidth instability — non-human tonal variation pattern"
-    )
 
-    if zcr_std > 0.09:
-        confidence = min(confidence + 10, 98)
-        reasons.append(
-            "Irregular zero-crossing rhythm — prosody mismatch with human speech"
-        )
-    if mfcc_std > 90:
-        confidence = min(confidence + 7, 98)
-        reasons.append(
-            "Unnatural spectral envelope detected"
-        )
-
-    return {
-        "is_clone":         True,
-        "confidence_score": confidence,
-        "verdict":          "CLONED VOICE DETECTED",
-        "reasons":          reasons,
-        "method":           "Acoustic Analysis (Calibrated)",
-    }
+def _detect_rules_fallback(feats):
+    """Layer 3 — conservative rule fallback (no ML model)."""
+    bstd = float(np.std(feats["bandwidth"]))
+    cstd = float(np.std(feats["centroid"]))
+    zstd = float(np.std(feats["zcr"]))
+    # Only flag as clone if bandwidth_std is far above natural range
+    if bstd > 615:
+        return True, min(80 + int((bstd - 615) / 25), 95), [
+            "Bandwidth instability exceeds human speech range",
+        ]
+    return False, max(60, int(100 - (bstd / 6))), []
 
 
 # ─── Public API ───────────────────────────────────────────────────────────────
@@ -122,15 +133,34 @@ def detect_clone(audio_path: str) -> dict:
                              res_type='kaiser_fast')
         feats = _extract_features(y, sr)
 
-        # Debug print in uvicorn terminal
-        print(
-            f"[EchoTrap] centroid_std={np.std(feats['centroid']):.1f}  "
-            f"bandwidth_std={np.std(feats['bandwidth']):.1f}  "
-            f"zcr_std={np.std(feats['zcr']):.4f}  "
-            f"mfcc_std={np.std(feats['mfcc']):.1f}"
-        )
+        bstd = float(np.std(feats["bandwidth"]))
+        cstd = float(np.std(feats["centroid"]))
+        zstd = float(np.std(feats["zcr"]))
+        mstd = float(np.std(feats["mfcc"]))
+        print(f"[EchoTrap] bandwidth_std={bstd:.1f}  centroid_std={cstd:.1f}"
+              f"  zcr_std={zstd:.4f}  mfcc_std={mstd:.1f}")
 
-        return _detect(feats)
+        # Layer 1 — pyttsx3 pre-filter
+        is_clone, confidence, reasons = _detect_pyttsx3(feats)
+        method = "pyttsx3/Windows-TTS Filter"
+
+        # Layer 2 — ML model (LibriSpeech vs edge-tts)
+        if not is_clone and _model is not None:
+            is_clone, confidence, reasons = _detect_ml(feats)
+            method = "ML Model (RandomForest)"
+
+        # Layer 3 — Rule fallback
+        if not is_clone and _model is None:
+            is_clone, confidence, reasons = _detect_rules_fallback(feats)
+            method = "Rule-based Fallback"
+
+        return {
+            "is_clone":         is_clone,
+            "confidence_score": confidence,
+            "verdict":          "CLONED VOICE DETECTED" if is_clone else "REAL VOICE VERIFIED",
+            "reasons":          reasons,
+            "method":           method,
+        }
 
     except Exception as e:
         return {

@@ -1,0 +1,38 @@
+{
+  "real": {
+    "n": 50,
+    "centroid_std": {
+      "min": 386.0,
+      "max": 1493.7,
+      "mean": 839.5
+    },
+    "bandwidth_std": {
+      "min": 371.8,
+      "max": 601.4,
+      "mean": 480.5
+    },
+    "zcr_std": {
+      "min": 0.02579,
+      "max": 0.20064,
+      "mean": 0.08613
+    }
+  },
+  "fake": {
+    "n": 50,
+    "centroid_std": {
+      "min": 628.5,
+      "max": 1508.0,
+      "mean": 1111.7
+    },
+    "bandwidth_std": {
+      "min": 303.6,
+      "max": 804.8,
+      "mean": 506.5
+    },
+    "zcr_std": {
+      "min": 0.04465,
+      "max": 0.17796,
+      "mean": 0.12312
+    }
+  }
+}
