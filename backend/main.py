@@ -6,6 +6,8 @@ from alert import send_alert
 from pydub import AudioSegment
 import shutil
 import os
+import numpy as np
+import librosa
 
 app = FastAPI()
 
@@ -16,6 +18,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+async def warmup():
+    """Pre-warm librosa so first real request is fast."""
+    try:
+        dummy = np.zeros(16000, dtype=np.float32)
+        librosa.feature.mfcc(y=dummy, sr=16000, n_mfcc=13)
+        print("[EchoTrap] Librosa pre-warmed — first detection will be fast.")
+    except Exception:
+        pass
+
 
 # Serve the frontend UI at the root
 @app.get("/")
