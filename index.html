@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EchoTrap — AI Voice Clone Detector</title>
+  <title>EchoTrap AI Voice Clone Detector</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap"
@@ -855,7 +855,7 @@
 
   <!-- Phone notification mockup -->
   <div class="phone-section" id="phoneSection">
-    <div class="phone-section-label">Family Alert Triggered</div>
+    <div class="phone-section-label" id="phoneSectionLabel">Family Alert Triggered</div>
     <div class="phone-frame">
       <div class="phone-notch"></div>
       <div class="phone-screen">
@@ -893,18 +893,18 @@
         <div class="notif-card" id="notifCard">
           <div class="notif-pulse" id="notifPulse"></div>
           <div class="notif-top">
-            <div class="notif-app-icon">
+            <div class="notif-app-icon" id="notifAppIcon">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"
                 stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 2L3 7v6c0 5.25 4.1 10.15 9 11.25C16.9 23.15 21 18.25 21 13V7z" />
               </svg>
             </div>
-            <span class="notif-app-name">ECHOTRAP</span>
+            <span class="notif-app-name">EchoTrap</span>
             <span class="notif-time">now</span>
           </div>
-          <div class="notif-title">Voice Clone Detected</div>
-          <div class="notif-body">A cloned voice was detected on your family member's phone. Check on them immediately.
-          </div>
+          <div class="notif-title" id="notifTitle">Voice Clone Detected</div>
+          <div class="notif-body" id="notifBody">ALERT: Cloned voice detected on your family member's phone. Check on
+            them immediately.</div>
         </div>
 
         <!-- Wallpaper / locked screen -->
@@ -996,10 +996,10 @@
         document.getElementById('verdictText').className = 'verdict ' + type;
 
         if (isClone) {
-          document.getElementById('verdictText').textContent = '\u26a0\ufe0f  CLONED VOICE DETECTED';
+          document.getElementById('verdictText').textContent = '\u26a0  CLONED VOICE DETECTED';
           document.getElementById('scoreLabel').textContent = 'Threat confidence \u2014 family alert triggered';
         } else {
-          document.getElementById('verdictText').textContent = '\u2714\ufe0f  REAL VOICE VERIFIED';
+          document.getElementById('verdictText').textContent = '\u2714  REAL VOICE VERIFIED';
           document.getElementById('scoreLabel').textContent = 'Authenticity confidence \u2014 no threat detected';
         }
 
@@ -1019,15 +1019,39 @@
 
         document.getElementById('methodText').textContent = method;
 
-        // Show phone notification only for cloned voice
-        if (isClone) {
-          setTimeout(() => {
-            phoneSection.classList.add('visible');
-            setTimeout(() => {
-              document.getElementById('notifCard').classList.add('slide-in');
-            }, 400);
-          }, 600);
-        }
+        // Show phone notification for both clone and real
+        setTimeout(() => {
+          // Reset
+          const notifCard = document.getElementById('notifCard');
+          notifCard.classList.remove('slide-in');
+          notifCard.style.background = '';
+          notifCard.style.borderColor = '';
+          document.getElementById('notifPulse').style.background = '';
+          document.getElementById('notifAppIcon').style.background = '';
+
+          if (isClone) {
+            document.getElementById('phoneSectionLabel').textContent = 'Family Alert Triggered';
+            document.getElementById('phoneSectionLabel').style.color = 'var(--red)';
+            notifCard.style.background = 'rgba(60,0,10,0.97)';
+            notifCard.style.borderColor = 'rgba(255,60,110,0.3)';
+            document.getElementById('notifPulse').style.background = 'var(--red)';
+            document.getElementById('notifAppIcon').style.background = 'linear-gradient(135deg,#ff3c6e,#7a0020)';
+            document.getElementById('notifTitle').textContent = 'Voice Clone Alert';
+            document.getElementById('notifBody').textContent = 'ALERT: Cloned voice detected on your family member’s phone. Check on them immediately.';
+          } else {
+            document.getElementById('phoneSectionLabel').textContent = 'Voice Verified';
+            document.getElementById('phoneSectionLabel').style.color = 'var(--green)';
+            notifCard.style.background = 'rgba(0,30,15,0.97)';
+            notifCard.style.borderColor = 'rgba(0,255,136,0.3)';
+            document.getElementById('notifPulse').style.background = 'var(--green)';
+            document.getElementById('notifAppIcon').style.background = 'linear-gradient(135deg,#00ff88,#006640)';
+            document.getElementById('notifTitle').textContent = 'Voice Verified';
+            document.getElementById('notifBody').textContent = 'EchoTrap: Voice verified. No threat detected.';
+          }
+
+          phoneSection.classList.add('visible');
+          setTimeout(() => notifCard.classList.add('slide-in'), 400);
+        }, 600);
 
       } catch (err) {
         loading.classList.remove('visible');
