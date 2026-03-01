@@ -20,14 +20,17 @@
 
     :root {
       --green: #00ff88;
-      --green2: #00c96e;
       --red: #ff3c6e;
-      --red2: #c0002a;
-      --bg: #050810;
-      --surface: rgba(255, 255, 255, 0.04);
-      --border: rgba(255, 255, 255, 0.08);
+      --bg: #060a12;
+      --surface: rgba(255, 255, 255, 0.05);
+      --border: rgba(255, 255, 255, 0.09);
       --text: #e8eaf0;
-      --muted: #556070;
+      --muted: #5a6880;
+    }
+
+    html,
+    body {
+      height: 100%;
     }
 
     body {
@@ -39,46 +42,45 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 12px 16px;
-      overflow-x: hidden;
+      padding: 20px;
+      overflow: hidden;
     }
 
-    /* ── Animated background blobs ── */
+    /* ── Animated background ── */
     .bg-blob {
       position: fixed;
       border-radius: 50%;
-      filter: blur(120px);
-      opacity: 0.12;
+      filter: blur(140px);
+      opacity: 0.1;
       pointer-events: none;
-      animation: blobFloat 12s ease-in-out infinite;
+      animation: blobFloat 14s ease-in-out infinite;
     }
 
     .bg-blob-1 {
-      width: 500px;
-      height: 500px;
+      width: 600px;
+      height: 600px;
       background: var(--green);
-      top: -150px;
-      left: -150px;
-      animation-delay: 0s;
+      top: -200px;
+      left: -200px;
     }
 
     .bg-blob-2 {
-      width: 400px;
-      height: 400px;
-      background: #0077ff;
-      bottom: -100px;
-      right: -100px;
-      animation-delay: -4s;
+      width: 500px;
+      height: 500px;
+      background: #0055ff;
+      bottom: -150px;
+      right: -150px;
+      animation-delay: -5s;
     }
 
     .bg-blob-3 {
-      width: 300px;
-      height: 300px;
+      width: 350px;
+      height: 350px;
       background: var(--red);
-      top: 40%;
-      left: 60%;
-      animation-delay: -8s;
-      opacity: 0.06;
+      top: 35%;
+      left: 55%;
+      opacity: 0.05;
+      animation-delay: -9s;
     }
 
     @keyframes blobFloat {
@@ -88,57 +90,74 @@
         transform: translate(0, 0) scale(1);
       }
 
-      33% {
-        transform: translate(30px, -30px) scale(1.05);
+      40% {
+        transform: translate(25px, -25px) scale(1.04);
       }
 
-      66% {
-        transform: translate(-20px, 20px) scale(0.97);
+      70% {
+        transform: translate(-15px, 15px) scale(0.97);
       }
     }
 
     /* ── Header ── */
     .header {
       text-align: center;
-      margin-bottom: 14px;
+      margin-bottom: 24px;
+    }
+
+    .shield-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 6px;
     }
 
     .shield {
-      width: 36px;
-      height: 36px;
-      margin: 0 auto 8px;
+      width: 42px;
+      height: 42px;
       animation: shieldPulse 3s ease-in-out infinite;
+      flex-shrink: 0;
     }
 
     @keyframes shieldPulse {
 
       0%,
       100% {
-        filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.6));
+        filter: drop-shadow(0 0 6px rgba(0, 255, 136, 0.6));
       }
 
       50% {
-        filter: drop-shadow(0 0 24px rgba(0, 255, 136, 0.9));
+        filter: drop-shadow(0 0 20px rgba(0, 255, 136, 1));
       }
     }
 
     .logo {
-      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-size: 2.8rem;
       font-weight: 900;
-      letter-spacing: 6px;
-      background: linear-gradient(135deg, var(--green), #00cfff);
+      letter-spacing: 8px;
+      background: linear-gradient(135deg, var(--green), #00d4ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       line-height: 1;
-      margin-bottom: 6px;
     }
 
     .tagline {
-      font-size: 0.75rem;
+      font-size: 0.9rem;
       font-weight: 400;
       color: var(--muted);
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Side-by-side layout ── */
+    .layout-wrapper {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 24px;
+      width: 100%;
+      max-width: 1080px;
     }
 
     /* ── Card ── */
@@ -146,12 +165,23 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 20px;
-      padding: 20px 24px;
+      padding: 24px 28px;
       width: 100%;
       max-width: 520px;
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
     }
 
     /* ── Upload zone ── */
@@ -162,12 +192,12 @@
 
     .upload-area {
       position: relative;
-      border: 2px dashed rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      padding: 14px 16px;
+      border: 2px dashed rgba(255, 255, 255, 0.14);
+      border-radius: 14px;
+      padding: 20px 20px;
       text-align: center;
       transition: border-color 0.3s, background 0.3s;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       overflow: hidden;
     }
 
@@ -175,7 +205,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse at center, rgba(0, 255, 136, 0.04) 0%, transparent 70%);
+      background: radial-gradient(ellipse at center, rgba(0, 255, 136, 0.05) 0%, transparent 70%);
       opacity: 0;
       transition: opacity 0.3s;
     }
@@ -190,15 +220,19 @@
       opacity: 1;
     }
 
+    .upload-area.drag-over {
+      border-color: var(--green);
+      background: rgba(0, 255, 136, 0.04);
+    }
+
     .upload-icon {
-      font-size: 2.4rem;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
 
     .upload-text {
-      color: #556070;
+      color: var(--muted);
       font-size: 0.95rem;
-      line-height: 1.6;
+      line-height: 1.5;
     }
 
     .upload-text span {
@@ -207,7 +241,7 @@
     }
 
     .filename {
-      margin-top: 10px;
+      margin-top: 8px;
       font-size: 0.85rem;
       color: var(--green);
       font-weight: 500;
@@ -221,36 +255,37 @@
     /* ── Button ── */
     .btn {
       width: 100%;
-      padding: 17px;
+      padding: 15px;
       border: none;
-      border-radius: 14px;
+      border-radius: 12px;
       font-family: 'Inter', sans-serif;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 700;
-      letter-spacing: 2px;
+      letter-spacing: 2.5px;
       cursor: pointer;
       position: relative;
       overflow: hidden;
-      transition: opacity 0.3s, transform 0.15s;
-      background: linear-gradient(135deg, var(--green) 0%, #00cfff 100%);
-      color: #050810;
+      transition: opacity 0.3s, transform 0.15s, box-shadow 0.2s;
+      background: linear-gradient(135deg, var(--green) 0%, #00d4ff 100%);
+      color: #04080f;
     }
 
     .btn::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent);
       opacity: 0;
       transition: opacity 0.3s;
     }
 
-    .btn:hover:not(:disabled)::after {
-      opacity: 1;
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0, 255, 136, 0.3);
     }
 
-    .btn:hover:not(:disabled) {
-      transform: translateY(-1px);
+    .btn:hover:not(:disabled)::after {
+      opacity: 1;
     }
 
     .btn:active:not(:disabled) {
@@ -258,9 +293,10 @@
     }
 
     .btn:disabled {
-      background: linear-gradient(135deg, #1a2430, #1a2430);
+      background: linear-gradient(135deg, #151d27, #1a222e);
       color: var(--muted);
       cursor: not-allowed;
+      box-shadow: none;
     }
 
     /* ── Waveform loader ── */
@@ -268,12 +304,12 @@
       display: none;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
-      margin-top: 28px;
-      padding: 24px;
-      border-radius: 14px;
+      gap: 12px;
+      margin-top: 20px;
+      padding: 18px;
+      border-radius: 12px;
       background: rgba(0, 255, 136, 0.04);
-      border: 1px solid rgba(0, 255, 136, 0.1);
+      border: 1px solid rgba(0, 255, 136, 0.12);
     }
 
     .loading.visible {
@@ -284,7 +320,7 @@
       display: flex;
       align-items: center;
       gap: 5px;
-      height: 40px;
+      height: 36px;
     }
 
     .wave-bar {
@@ -334,30 +370,30 @@
 
       0%,
       100% {
-        height: 6px;
-        opacity: 0.4;
+        height: 5px;
+        opacity: 0.3;
       }
 
       50% {
-        height: 36px;
+        height: 32px;
         opacity: 1;
       }
     }
 
     .loading-text {
-      font-size: 0.88rem;
+      font-size: 0.875rem;
       color: var(--green);
       font-weight: 500;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
     }
 
-    /* ── Result ── */
+    /* ── Result card ── */
     .result {
       display: none;
-      margin-top: 24px;
-      border-radius: 18px;
-      padding: 28px;
-      animation: resultReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      margin-top: 18px;
+      border-radius: 14px;
+      padding: 20px;
+      animation: resultReveal 0.45s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
     }
 
     .result.visible {
@@ -366,18 +402,18 @@
 
     .result.real {
       background: rgba(0, 255, 136, 0.06);
-      border: 1px solid rgba(0, 255, 136, 0.25);
+      border: 1px solid rgba(0, 255, 136, 0.22);
     }
 
     .result.clone {
-      background: rgba(255, 60, 110, 0.06);
-      border: 1px solid rgba(255, 60, 110, 0.25);
+      background: rgba(255, 60, 110, 0.07);
+      border: 1px solid rgba(255, 60, 110, 0.22);
     }
 
     @keyframes resultReveal {
       from {
         opacity: 0;
-        transform: translateY(16px) scale(0.97);
+        transform: translateY(12px) scale(0.98);
       }
 
       to {
@@ -390,32 +426,31 @@
       display: flex;
       align-items: center;
       gap: 16px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
-    /* Score ring */
     .score-ring {
       flex-shrink: 0;
       position: relative;
-      width: 76px;
-      height: 76px;
+      width: 72px;
+      height: 72px;
     }
 
     .score-ring svg {
-      width: 76px;
-      height: 76px;
+      width: 72px;
+      height: 72px;
       transform: rotate(-90deg);
     }
 
     .ring-bg {
       fill: none;
-      stroke: rgba(255, 255, 255, 0.06);
-      stroke-width: 7;
+      stroke: rgba(255, 255, 255, 0.07);
+      stroke-width: 6;
     }
 
     .ring-fill {
       fill: none;
-      stroke-width: 7;
+      stroke-width: 6;
       stroke-linecap: round;
       stroke-dasharray: 201;
       stroke-dashoffset: 201;
@@ -436,7 +471,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 800;
     }
 
@@ -453,9 +488,9 @@
     }
 
     .verdict {
-      font-size: 1.25rem;
-      font-weight: 900;
-      letter-spacing: 0.5px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 0.3px;
       margin-bottom: 4px;
     }
 
@@ -474,8 +509,8 @@
 
     .divider {
       height: 1px;
-      background: rgba(255, 255, 255, 0.07);
-      margin: 16px 0;
+      background: rgba(255, 255, 255, 0.08);
+      margin: 14px 0;
     }
 
     .reasons {
@@ -489,19 +524,19 @@
       display: flex;
       align-items: flex-start;
       gap: 10px;
-      font-size: 0.83rem;
+      font-size: 0.85rem;
       color: #8a99b0;
       line-height: 1.5;
     }
 
     .reasons li .tag {
       flex-shrink: 0;
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       font-weight: 700;
       letter-spacing: 1px;
       padding: 2px 7px;
       border-radius: 20px;
-      margin-top: 1px;
+      margin-top: 2px;
     }
 
     .result.clone .tag {
@@ -518,9 +553,9 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       color: var(--muted);
-      margin-top: 14px;
+      margin-top: 12px;
       padding: 4px 10px;
       border-radius: 20px;
       border: 1px solid var(--border);
@@ -530,8 +565,8 @@
     .stats {
       display: flex;
       justify-content: space-around;
-      margin-top: 14px;
-      padding-top: 14px;
+      margin-top: 18px;
+      padding-top: 16px;
       border-top: 1px solid var(--border);
     }
 
@@ -540,79 +575,77 @@
     }
 
     .stat-icon {
-      font-size: 1.1rem;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
+      color: var(--muted);
     }
 
     .stat-number {
-      font-size: 1.2rem;
+      font-size: 1.5rem;
       font-weight: 900;
-      background: linear-gradient(135deg, var(--green), #00cfff);
+      background: linear-gradient(135deg, var(--green), #00d4ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
     .stat-label {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       color: var(--muted);
-      margin-top: 3px;
-      letter-spacing: 0.3px;
+      margin-top: 2px;
     }
 
-    /* ── Drag over ── */
-    .upload-area.drag-over {
-      border-color: var(--green);
-      background: rgba(0, 255, 136, 0.04);
-    }
-
-    /* ── Phone mockup ── */
+    /* ── Phone mockup (right column) ── */
     .phone-section {
-      display: none;
+      display: flex !important;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
-      margin-top: 32px;
-      animation: resultReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      gap: 12px;
+      flex-shrink: 0;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(20px);
+      transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
     }
 
     .phone-section.visible {
-      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
     }
 
     .phone-section-label {
-      font-size: 0.75rem;
-      font-weight: 600;
+      font-size: 0.72rem;
+      font-weight: 700;
       letter-spacing: 2px;
-      color: var(--red);
       text-transform: uppercase;
+      color: var(--red);
     }
 
     .phone-frame {
-      width: 210px;
-      background: #0d0d0d;
-      border: 2px solid rgba(255, 255, 255, 0.10);
-      border-radius: 28px;
-      padding: 8px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-      position: relative;
+      width: 220px;
+      background: #0a0a0a;
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      border-radius: 32px;
+      padding: 10px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
 
     .phone-notch {
-      width: 50px;
-      height: 14px;
-      background: #0d0d0d;
+      width: 56px;
+      height: 16px;
+      background: #0a0a0a;
       border: 2px solid rgba(255, 255, 255, 0.1);
-      border-radius: 0 0 10px 10px;
-      margin: 0 auto 4px;
+      border-radius: 0 0 12px 12px;
       border-top: none;
+      margin: 0 auto 4px;
     }
 
     .phone-screen {
-      background: #111318;
-      border-radius: 20px;
+      background: #0f1218;
+      border-radius: 22px;
       overflow: hidden;
-      min-height: 140px;
+      min-height: 160px;
       position: relative;
     }
 
@@ -620,10 +653,10 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 6px 12px 4px;
-      font-size: 0.6rem;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.7);
+      padding: 8px 14px 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.75);
     }
 
     .status-icons {
@@ -633,26 +666,28 @@
     }
 
     .phone-wallpaper {
-      height: 44px;
-      background: linear-gradient(135deg, #0a1628 0%, #0d1f3c 100%);
+      height: 56px;
+      background: linear-gradient(160deg, #060d20 0%, #0a1830 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 0.65rem;
-      color: rgba(255, 255, 255, 0.2);
-      letter-spacing: 1px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      color: rgba(255, 255, 255, 0.15);
     }
 
     /* Notification card */
     .notif-card {
       margin: 0 8px 8px;
-      background: rgba(30, 34, 42, 0.98);
+      background: rgba(28, 32, 42, 0.98);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      padding: 12px 14px;
-      transform: translateY(-120%);
+      border-radius: 12px;
+      padding: 10px 12px;
+      transform: translateY(-115%);
       opacity: 0;
-      transition: transform 0.55s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.3s ease;
+      position: relative;
+      transition: transform 0.6s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.35s ease;
     }
 
     .notif-card.slide-in {
@@ -664,13 +699,12 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
 
     .notif-app-icon {
-      width: 22px;
-      height: 22px;
-      background: linear-gradient(135deg, var(--red), #7a0020);
+      width: 20px;
+      height: 20px;
       border-radius: 6px;
       display: flex;
       align-items: center;
@@ -679,16 +713,16 @@
     }
 
     .notif-app-name {
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       font-weight: 700;
-      letter-spacing: 1px;
-      color: rgba(255, 255, 255, 0.5);
+      color: rgba(255, 255, 255, 0.55);
       flex: 1;
+      letter-spacing: 0.5px;
     }
 
     .notif-time {
       font-size: 0.62rem;
-      color: rgba(255, 255, 255, 0.35);
+      color: rgba(255, 255, 255, 0.3);
     }
 
     .notif-title {
@@ -708,8 +742,8 @@
       position: absolute;
       top: 8px;
       right: 8px;
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: var(--red);
       animation: notifPulse 1.5s ease-in-out infinite;
@@ -726,65 +760,41 @@
         box-shadow: 0 0 0 6px rgba(255, 60, 110, 0);
       }
     }
-
-    /* ── Side-by-side layout ── */
-    .layout-wrapper {
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      gap: 20px;
-      width: 100%;
-      max-width: 1100px;
-    }
-
-    /* Override phone-section to use opacity slide instead of display:none */
-    .phone-section {
-      display: flex !important;
-      /* always in layout */
-      opacity: 0;
-      pointer-events: none;
-      transform: translateX(24px);
-      transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
-      flex-shrink: 0;
-    }
-
-    .phone-section.visible {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateX(0);
-    }
   </style>
 </head>
 
 <body>
 
-  <!-- Background blobs -->
   <div class="bg-blob bg-blob-1"></div>
   <div class="bg-blob bg-blob-2"></div>
   <div class="bg-blob bg-blob-3"></div>
 
   <!-- Header -->
   <header class="header">
-    <svg class="shield" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M32 4L8 14v18c0 13.3 10.3 25.7 24 29 13.7-3.3 24-15.7 24-29V14L32 4z" fill="rgba(0,255,136,0.12)"
-        stroke="#00ff88" stroke-width="2" />
-      <path d="M22 31l7 7 13-13" stroke="#00ff88" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-    </svg>
-    <div class="logo">ECHOTRAP</div>
-    <p class="tagline">Real-Time AI Voice Clone Detection &nbsp;·&nbsp; Protecting families from synthetic voice fraud
-    </p>
+    <div class="shield-wrap">
+      <svg class="shield" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M32 4L8 14v18c0 13.3 10.3 25.7 24 29 13.7-3.3 24-15.7 24-29V14L32 4z" fill="rgba(0,255,136,0.12)"
+          stroke="#00ff88" stroke-width="2" />
+        <path d="M22 31l7 7 13-13" stroke="#00ff88" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <div class="logo">ECHOTRAP</div>
+    </div>
+    <p class="tagline">Real-Time AI Voice Clone Detection &nbsp;&middot;&nbsp; Protecting families from synthetic voice
+      fraud</p>
   </header>
 
   <div class="layout-wrapper">
 
-    <!-- Main card -->
+    <!-- Analysis Card -->
     <div class="card">
+
+      <p class="section-label">Voice Authentication</p>
 
       <!-- Upload -->
       <label class="upload-label" for="audioFile">
         <div class="upload-area" id="uploadArea">
           <div class="upload-icon">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#556070" stroke-width="1.5"
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#445566" stroke-width="1.5"
               stroke-linecap="round" stroke-linejoin="round">
               <rect x="9" y="2" width="6" height="12" rx="3" />
               <path d="M5 10a7 7 0 0 0 14 0" />
@@ -794,7 +804,7 @@
           </div>
           <p class="upload-text">
             Drop your voice file here or <span>browse</span><br />
-            <small style="font-size:0.78rem;">MP3 · WAV · MP4 · M4A · any format</small>
+            <small style="font-size:0.78rem;">MP3 &middot; WAV &middot; MP4 &middot; M4A &middot; any format</small>
           </p>
           <div class="filename" id="filename"></div>
         </div>
@@ -806,7 +816,7 @@
         ANALYSE VOICE
       </button>
 
-      <!-- Loading waveform -->
+      <!-- Waveform loader -->
       <div class="loading" id="loading">
         <div class="wave-bars">
           <div class="wave-bar"></div>
@@ -819,16 +829,16 @@
           <div class="wave-bar"></div>
           <div class="wave-bar"></div>
         </div>
-        <span class="loading-text">Analysing voice patterns &nbsp;—&nbsp; please wait</span>
+        <span class="loading-text">Analysing voice patterns &mdash; please wait</span>
       </div>
 
       <!-- Result -->
       <div class="result" id="result">
         <div class="result-top">
           <div class="score-ring">
-            <svg viewBox="0 0 76 76">
-              <circle class="ring-bg" cx="38" cy="38" r="32" />
-              <circle class="ring-fill" id="ringFill" cx="38" cy="38" r="32" />
+            <svg viewBox="0 0 72 72">
+              <circle class="ring-bg" cx="36" cy="36" r="30" />
+              <circle class="ring-fill" id="ringFill" cx="36" cy="36" r="30" />
             </svg>
             <div class="score-num" id="scoreNum"></div>
           </div>
@@ -840,7 +850,7 @@
         <div class="divider"></div>
         <ul class="reasons" id="reasonsList"></ul>
         <div class="method-badge" id="methodBadge">
-          <span>⚙</span> <span id="methodText"></span>
+          <span>&#9881;</span> <span id="methodText"></span>
         </div>
       </div>
 
@@ -848,7 +858,7 @@
       <div class="stats">
         <div class="stat">
           <div class="stat-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
               stroke-linecap="round">
               <circle cx="12" cy="12" r="10" />
               <path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20" />
@@ -859,7 +869,7 @@
         </div>
         <div class="stat">
           <div class="stat-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
               stroke-linecap="round" stroke-linejoin="round">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
             </svg>
@@ -869,7 +879,7 @@
         </div>
         <div class="stat">
           <div class="stat-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
               stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 2a9 9 0 0 1 9 9c0 3-1.5 5.5-4 7l-1 4H8l-1-4C4.5 16.5 3 14 3 11a9 9 0 0 1 9-9z" />
               <line x1="9" y1="21" x2="15" y2="21" />
@@ -882,48 +892,44 @@
 
     </div><!-- /card -->
 
-    <!-- Phone notification mockup (side column) -->
+    <!-- Phone notification mockup -->
     <div class="phone-section" id="phoneSection">
       <div class="phone-section-label" id="phoneSectionLabel">Family Alert Triggered</div>
       <div class="phone-frame">
         <div class="phone-notch"></div>
         <div class="phone-screen">
-
           <!-- Status bar -->
           <div class="phone-status-bar">
             <span>9:41</span>
             <div class="status-icons">
-              <!-- Signal bars -->
-              <svg width="14" height="10" viewBox="0 0 14 10" fill="rgba(255,255,255,0.7)">
+              <svg width="14" height="10" viewBox="0 0 14 10" fill="rgba(255,255,255,0.75)">
                 <rect x="0" y="6" width="2" height="4" rx="1" />
                 <rect x="3" y="4" width="2" height="6" rx="1" />
                 <rect x="6" y="2" width="2" height="8" rx="1" />
                 <rect x="9" y="0" width="2" height="10" rx="1" />
               </svg>
-              <!-- Wifi -->
-              <svg width="13" height="10" viewBox="0 0 24 18" fill="none" stroke="rgba(255,255,255,0.7)"
+              <svg width="13" height="10" viewBox="0 0 24 18" fill="none" stroke="rgba(255,255,255,0.75)"
                 stroke-width="2.5" stroke-linecap="round">
                 <path d="M2 6a14 14 0 0 1 20 0" />
                 <path d="M5.5 10a9 9 0 0 1 13 0" />
                 <path d="M9 14a4 4 0 0 1 6 0" />
-                <circle cx="12" cy="17" r="1" fill="rgba(255,255,255,0.7)" stroke="none" />
+                <circle cx="12" cy="17" r="1" fill="rgba(255,255,255,0.75)" stroke="none" />
               </svg>
-              <!-- Battery -->
-              <svg width="18" height="10" viewBox="0 0 22 12" fill="rgba(255,255,255,0.7)">
-                <rect x="0" y="1" width="18" height="10" rx="2" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"
+              <svg width="20" height="10" viewBox="0 0 22 12" fill="rgba(255,255,255,0.75)">
+                <rect x="0" y="1" width="18" height="10" rx="2" stroke="rgba(255,255,255,0.75)" stroke-width="1.5"
                   fill="none" />
-                <rect x="18.5" y="3.5" width="3" height="5" rx="1" fill="rgba(255,255,255,0.5)" />
+                <rect x="18.5" y="3.5" width="3" height="5" rx="1" fill="rgba(255,255,255,0.45)" />
                 <rect x="1.5" y="2.5" width="12" height="7" rx="1" />
               </svg>
             </div>
           </div>
 
-          <!-- Notification card -->
+          <!-- Notification -->
           <div class="notif-card" id="notifCard">
             <div class="notif-pulse" id="notifPulse"></div>
             <div class="notif-top">
               <div class="notif-app-icon" id="notifAppIcon">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"
                   stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 2L3 7v6c0 5.25 4.1 10.15 9 11.25C16.9 23.15 21 18.25 21 13V7z" />
                 </svg>
@@ -931,14 +937,12 @@
               <span class="notif-app-name">EchoTrap</span>
               <span class="notif-time">now</span>
             </div>
-            <div class="notif-title" id="notifTitle">Voice Clone Detected</div>
+            <div class="notif-title" id="notifTitle">Voice Clone Alert</div>
             <div class="notif-body" id="notifBody">ALERT: Cloned voice detected on your family member's phone. Check on
               them immediately.</div>
           </div>
 
-          <!-- Wallpaper / locked screen -->
           <div class="phone-wallpaper">LOCKED</div>
-
         </div>
       </div>
     </div>
@@ -948,7 +952,7 @@
   <script>
     let selectedFile = null;
 
-    // ── Drag & drop ──
+    // Drag & drop
     const uploadArea = document.getElementById('uploadArea');
     uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
     uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
@@ -971,26 +975,27 @@
       if (file) setFile(file);
     }
 
-    // ── Ring animation ──
     function animateRing(score, type) {
       const ring = document.getElementById('ringFill');
       ring.className = 'ring-fill ' + type;
-      // circumference = 2π×32 ≈ 201
-      const offset = 201 - (201 * score / 100);
-      setTimeout(() => { ring.style.strokeDashoffset = offset; }, 80);
+      // circumference = 2*pi*30 ≈ 188
+      const offset = 188 - (188 * score / 100);
+      setTimeout(() => { ring.style.strokeDasharray = '188'; ring.style.strokeDashoffset = offset; }, 80);
     }
 
-    // ── Main analyse ──
     async function analyseVoice() {
       if (!selectedFile) return;
 
       const btn = document.getElementById('analyseBtn');
       const loading = document.getElementById('loading');
       const resultDiv = document.getElementById('result');
+      const phoneSection = document.getElementById('phoneSection');
 
       loading.classList.add('visible');
       resultDiv.classList.remove('visible');
       resultDiv.style.display = 'none';
+      phoneSection.classList.remove('visible');
+      document.getElementById('notifCard').classList.remove('slide-in');
       btn.disabled = true;
 
       const formData = new FormData();
@@ -1012,14 +1017,8 @@
         const method = data.method || '';
         const type = isClone ? 'clone' : 'real';
 
-        // Hide phone mockup whenever a new result comes in
-        const phoneSection = document.getElementById('phoneSection');
-        phoneSection.classList.remove('visible');
-        document.getElementById('notifCard').classList.remove('slide-in');
-
         resultDiv.className = 'result ' + type;
         resultDiv.style.display = 'block';
-        // trigger animation frame before adding .visible
         requestAnimationFrame(() => resultDiv.classList.add('visible'));
 
         document.getElementById('scoreNum').className = 'score-num ' + type;
@@ -1031,7 +1030,7 @@
           document.getElementById('scoreLabel').textContent = 'Threat confidence \u2014 family alert triggered';
         } else {
           document.getElementById('verdictText').textContent = '\u2714  REAL VOICE VERIFIED';
-          document.getElementById('scoreLabel').textContent = 'Authenticity confidence \u2014 no threat detected';
+          document.getElementById('scoreLabel').textContent = 'Authenticity confirmed \u2014 no threat detected';
         }
 
         animateRing(score, type);
@@ -1050,36 +1049,35 @@
 
         document.getElementById('methodText').textContent = method;
 
-        // Show phone notification for both clone and real
+        // Phone notification
+        const notifCard = document.getElementById('notifCard');
+        notifCard.classList.remove('slide-in');
+        notifCard.style.background = '';
+        notifCard.style.borderColor = '';
+        document.getElementById('notifPulse').style.background = '';
+        document.getElementById('notifAppIcon').style.background = '';
+
+        if (isClone) {
+          document.getElementById('phoneSectionLabel').textContent = 'Family Alert Triggered';
+          document.getElementById('phoneSectionLabel').style.color = 'var(--red)';
+          notifCard.style.background = 'rgba(55,0,10,0.97)';
+          notifCard.style.borderColor = 'rgba(255,60,110,0.3)';
+          document.getElementById('notifPulse').style.background = 'var(--red)';
+          document.getElementById('notifAppIcon').style.background = 'linear-gradient(135deg,#ff3c6e,#7a0020)';
+          document.getElementById('notifTitle').textContent = 'Voice Clone Alert';
+          document.getElementById('notifBody').textContent = 'ALERT: Cloned voice detected on your family member\u2019s phone. Check on them immediately.';
+        } else {
+          document.getElementById('phoneSectionLabel').textContent = 'Voice Verified';
+          document.getElementById('phoneSectionLabel').style.color = 'var(--green)';
+          notifCard.style.background = 'rgba(0,28,14,0.97)';
+          notifCard.style.borderColor = 'rgba(0,255,136,0.3)';
+          document.getElementById('notifPulse').style.background = 'var(--green)';
+          document.getElementById('notifAppIcon').style.background = 'linear-gradient(135deg,#00ff88,#006640)';
+          document.getElementById('notifTitle').textContent = 'Voice Verified';
+          document.getElementById('notifBody').textContent = 'EchoTrap: Voice verified. No threat detected.';
+        }
+
         setTimeout(() => {
-          // Reset
-          const notifCard = document.getElementById('notifCard');
-          notifCard.classList.remove('slide-in');
-          notifCard.style.background = '';
-          notifCard.style.borderColor = '';
-          document.getElementById('notifPulse').style.background = '';
-          document.getElementById('notifAppIcon').style.background = '';
-
-          if (isClone) {
-            document.getElementById('phoneSectionLabel').textContent = 'Family Alert Triggered';
-            document.getElementById('phoneSectionLabel').style.color = 'var(--red)';
-            notifCard.style.background = 'rgba(60,0,10,0.97)';
-            notifCard.style.borderColor = 'rgba(255,60,110,0.3)';
-            document.getElementById('notifPulse').style.background = 'var(--red)';
-            document.getElementById('notifAppIcon').style.background = 'linear-gradient(135deg,#ff3c6e,#7a0020)';
-            document.getElementById('notifTitle').textContent = 'Voice Clone Alert';
-            document.getElementById('notifBody').textContent = 'ALERT: Cloned voice detected on your family member’s phone. Check on them immediately.';
-          } else {
-            document.getElementById('phoneSectionLabel').textContent = 'Voice Verified';
-            document.getElementById('phoneSectionLabel').style.color = 'var(--green)';
-            notifCard.style.background = 'rgba(0,30,15,0.97)';
-            notifCard.style.borderColor = 'rgba(0,255,136,0.3)';
-            document.getElementById('notifPulse').style.background = 'var(--green)';
-            document.getElementById('notifAppIcon').style.background = 'linear-gradient(135deg,#00ff88,#006640)';
-            document.getElementById('notifTitle').textContent = 'Voice Verified';
-            document.getElementById('notifBody').textContent = 'EchoTrap: Voice verified. No threat detected.';
-          }
-
           phoneSection.classList.add('visible');
           setTimeout(() => notifCard.classList.add('slide-in'), 400);
         }, 600);
@@ -1091,7 +1089,6 @@
         resultDiv.className = 'result clone';
         resultDiv.style.display = 'block';
         requestAnimationFrame(() => resultDiv.classList.add('visible'));
-
         document.getElementById('scoreNum').className = 'score-num clone';
         document.getElementById('scoreNum').textContent = '!';
         document.getElementById('verdictText').className = 'verdict clone';
