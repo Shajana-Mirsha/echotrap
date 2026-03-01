@@ -1,4 +1,4 @@
-# EchoTrap — AI Voice Clone Detector
+# EchoTrap - AI Voice Clone Detector
 
 > Real-time AI-powered protection against synthetic voice fraud, built to protect elderly people from scammers who clone their children's voices.
 
@@ -6,7 +6,7 @@
 
 ## The Problem
 
-AI voice cloning technology can now replicate any person's voice in under 3 seconds using a 10-second audio clip from anywhere — a phone call, a voicemail, a video. Scammers are using this to call elderly people in the voices of their own children, creating fake emergencies and demanding immediate money transfers.
+AI voice cloning technology can now replicate any person's voice in under 3 seconds using a 10-second audio clip from anywhere - a phone call, a voicemail, a video. Scammers are using this to call elderly people in the voices of their own children, creating fake emergencies and demanding immediate money transfers.
 
 **The victim hears a voice they have known and loved for decades. They do not question it.**
 
@@ -111,19 +111,8 @@ Real human voices have **natural biological variation** — micro-tremors, breat
 
 ---
 
-## AMD Slingshot — Domain
 
-**AI + Cybersecurity & Privacy**
 
-EchoTrap's on-device inference model is designed to leverage AMD's edge AI computing capabilities (Ryzen AI / XDNA architecture) for real-time audio analysis without cloud dependency — making it deployable on any device, anywhere, without internet.
-
----
-
-## Team
-
-**Shajana Mirsha** — Bannari Amman Institute of Technology, Sathyamangalam
-
----
 
 ## License
 
