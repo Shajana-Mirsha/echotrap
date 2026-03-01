@@ -22,10 +22,10 @@
       --green: #00ff88;
       --red: #ff3c6e;
       --bg: #060a12;
-      --surface: rgba(255, 255, 255, 0.07);
-      --border: rgba(255, 255, 255, 0.12);
-      --text: #e8eaf0;
-      --muted: #5a6880;
+      --surface: rgba(255, 255, 255, 0.10);
+      --border: rgba(255, 255, 255, 0.18);
+      --text: #f0f2f8;
+      --muted: #8a9ab8;
     }
 
     html,
@@ -133,7 +133,7 @@
     }
 
     .logo {
-      font-size: 2.8rem;
+      font-size: 3.2rem;
       font-weight: 900;
       letter-spacing: 8px;
       background: linear-gradient(135deg, var(--green), #00d4ff);
@@ -144,7 +144,7 @@
     }
 
     .tagline {
-      font-size: 0.9rem;
+      font-size: 1rem;
       font-weight: 400;
       color: var(--muted);
       letter-spacing: 0.3px;
@@ -171,17 +171,18 @@
       backdrop-filter: blur(28px);
       -webkit-backdrop-filter: blur(28px);
       box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        0 0 0 1px rgba(0, 255, 136, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
 
     /* ── Section label ── */
     .section-label {
-      font-size: 0.72rem;
+      font-size: 0.8rem;
       font-weight: 700;
       letter-spacing: 2px;
-      color: var(--muted);
+      color: var(--green);
       text-transform: uppercase;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     /* ── Upload zone ── */
@@ -230,9 +231,9 @@
     }
 
     .upload-text {
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.5;
+      color: #aab4cc;
+      font-size: 1rem;
+      line-height: 1.6;
     }
 
     .upload-text span {
@@ -242,9 +243,9 @@
 
     .filename {
       margin-top: 8px;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       color: var(--green);
-      font-weight: 500;
+      font-weight: 600;
       min-height: 1.2em;
     }
 
@@ -255,11 +256,11 @@
     /* ── Button ── */
     .btn {
       width: 100%;
-      padding: 15px;
+      padding: 17px;
       border: none;
       border-radius: 12px;
       font-family: 'Inter', sans-serif;
-      font-size: 0.9rem;
+      font-size: 1rem;
       font-weight: 700;
       letter-spacing: 2.5px;
       cursor: pointer;
@@ -580,7 +581,7 @@
     }
 
     .stat-number {
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       font-weight: 900;
       background: linear-gradient(135deg, var(--green), #00d4ff);
       -webkit-background-clip: text;
@@ -589,7 +590,7 @@
     }
 
     .stat-label {
-      font-size: 0.75rem;
+      font-size: 0.82rem;
       color: var(--muted);
       margin-top: 2px;
     }
